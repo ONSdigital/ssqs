@@ -3,11 +3,17 @@ package ssqs
 
 import (
 	"context"
+	"github.com/aws/aws-sdk-go-v2/aws"
 
 	"github.com/aws/aws-sdk-go-v2/aws/external"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/aws/aws-sdk-go-v2/service/sqs/sqsiface"
 )
+
+// DefaultClient returns a new SQS client.
+var DefaultClient = func(config aws.Config) sqsiface.ClientAPI {
+	return sqs.New(config)
+}
 
 // Consumer represents a consumer.
 type Consumer struct {
@@ -40,7 +46,7 @@ func New(q *Queue) (*Consumer, error) {
 	}
 
 	return &Consumer{
-		client:   sqs.New(c),
+		client:   DefaultClient(c),
 		finish:   make(chan struct{}, 1),
 		Errors:   make(chan error, 1),
 		Messages: make(chan *Message, 1),
